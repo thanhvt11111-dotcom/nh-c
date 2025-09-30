@@ -1,0 +1,193 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chúc mừng sinh nhật Thanh Thủy aka Bông 🎂</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #ffdde1, #ee9ca7);
+      text-align: center;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+
+    h1 {
+      font-size: 3em;
+      color: #fff;
+      text-shadow: 2px 2px 8px #ff69b4;
+      animation: blink 1.5s infinite;
+      margin-top: 50px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .cake {
+      margin-top: 20px;
+      width: 250px;
+    }
+
+    #fireworksCanvas, #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    #musicBtn {
+      margin-top: 20px;
+      padding: 12px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 25px;
+      background: #ff69b4;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    #musicBtn:hover {
+      background: #ff1493;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 Chúc mừng sinh nhật Thanh Thủy aka Bông 🎉</h1>
+  <img src="https://i.imgur.com/7P7bT1D.png" alt="Birthday Cake" class="cake">
+
+  <!-- Nút bấm phát nhạc -->
+  <button id="musicBtn">🎵 Bấm để bắt đầu tiệc 🎵</button>
+
+  <!-- Nhạc Happy Birthday từ GitHub -->
+  <audio id="music" loop>
+    <source src="https://raw.githubusercontent.com/thanhvt11111-dotcom/nh-c/6fa25fa59ef8daf2d4410bffc13e4e5e62cd5389/happy-birthday-to-you-background-music-for-the-holiday-jazz-version-316322.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Canvas cho pháo hoa và kim tuyến -->
+  <canvas id="fireworksCanvas"></canvas>
+  <canvas id="confettiCanvas"></canvas>
+
+  <script>
+    // === Phát nhạc khi bấm nút ===
+    const music = document.getElementById("music");
+    document.getElementById("musicBtn").addEventListener("click", () => {
+      music.load();
+      music.play()
+        .then(() => console.log("Nhạc đang phát 🎶"))
+        .catch(err => console.error("Không phát được nhạc:", err));
+    });
+
+    // === Hiệu ứng pháo hoa ===
+    const canvasFW = document.getElementById("fireworksCanvas");
+    const ctxFW = canvasFW.getContext("2d");
+    canvasFW.width = window.innerWidth;
+    canvasFW.height = window.innerHeight;
+
+    class Firework {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.particles = [];
+        for (let i = 0; i < 80; i++) {
+          this.particles.push({
+            x: x,
+            y: y,
+            angle: Math.random() * 2 * Math.PI,
+            speed: Math.random() * 5 + 2,
+            radius: Math.random() * 2 + 1,
+            alpha: 1
+          });
+        }
+      }
+      update() {
+        this.particles.forEach(p => {
+          p.x += Math.cos(p.angle) * p.speed;
+          p.y += Math.sin(p.angle) * p.speed;
+          p.alpha -= 0.01;
+        });
+      }
+      draw(ctx) {
+        this.particles.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${this.color},${p.alpha})`;
+          ctx.fill();
+        });
+      }
+    }
+
+    let fireworks = [];
+    function animateFW() {
+      ctxFW.clearRect(0, 0, canvasFW.width, canvasFW.height);
+      if (Math.random() < 0.08) {
+        const side = Math.random() < 0.5 ? 100 : canvasFW.width - 100;
+        fireworks.push(new Firework(side, canvasFW.height / 2, "255,255,255"));
+      }
+      fireworks.forEach((fw, i) => {
+        fw.update();
+        fw.draw(ctxFW);
+        if (fw.particles.every(p => p.alpha <= 0)) fireworks.splice(i, 1);
+      });
+      requestAnimationFrame(animateFW);
+    }
+    animateFW();
+
+    // === Hiệu ứng kim tuyến (confetti) ===
+    const canvasCF = document.getElementById("confettiCanvas");
+    const ctxCF = canvasCF.getContext("2d");
+    canvasCF.width = window.innerWidth;
+    canvasCF.height = window.innerHeight;
+
+    const confetti = [];
+    for (let i = 0; i < 150; i++) {
+      confetti.push({
+        x: Math.random() * canvasCF.width,
+        y: Math.random() * canvasCF.height - canvasCF.height,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * 50,
+        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+        tilt: Math.random() * 10 - 10
+      });
+    }
+
+    function drawConfetti() {
+      ctxCF.clearRect(0, 0, canvasCF.width, canvasCF.height);
+      confetti.forEach(c => {
+        ctxCF.beginPath();
+        ctxCF.ellipse(c.x, c.y, c.r, c.r/2, Math.random()*Math.PI, 0, 2 * Math.PI);
+        ctxCF.fillStyle = c.color;
+        ctxCF.fill();
+      });
+      updateConfetti();
+      requestAnimationFrame(drawConfetti);
+    }
+
+    function updateConfetti() {
+      confetti.forEach(c => {
+        c.y += Math.cos(c.d) + 2;
+        c.x += Math.sin(c.d);
+        if (c.y > canvasCF.height) {
+          c.y = -10;
+          c.x = Math.random() * canvasCF.width;
+        }
+      });
+    }
+    drawConfetti();
+
+    // === Resize canvas khi đổi kích thước cửa sổ ===
+    window.addEventListener("resize", () => {
+      canvasFW.width = window.innerWidth;
+      canvasFW.height = window.innerHeight;
+      canvasCF.width = window.innerWidth;
+      canvasCF.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
